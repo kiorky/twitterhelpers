@@ -1,0 +1,18 @@
+---
+apik: 'aa'
+apis: 'aa'
+ak: 'aw-'
+as: 'az'
+wat: xx
+accounts:
+  - ak: 'a-wa'
+    as: 'a'
+    wat: zz
+  - ak: 'y-a'
+    as: 's'
+    wat: yy
+  - ak: 'a-x'
+    as: 'b'
+    wat: xx
+main: "mymainid"
+ham: [id, of, accounts, that, are, whitelisted]

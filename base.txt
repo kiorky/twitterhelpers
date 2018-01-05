@@ -1,0 +1,10 @@
+pyyaml
+ipython
+twitterapi
+requests
+argparse
+tweepy
+twitter
+six
+dogpile.cache
+lxml

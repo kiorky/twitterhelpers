@@ -1,0 +1,6 @@
+*.csv
+cache*dbm*
+config*.yml
+src/*.egg-info/
+/local
+/venv

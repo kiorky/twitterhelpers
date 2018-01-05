@@ -1,0 +1,3 @@
+-r requirements.txt
+pdb_clone
+-e .
