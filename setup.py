@@ -30,6 +30,7 @@ entry_points = {
     # z3c.autoinclude.plugin": ["target = plone"],
     # console_scripts": ["myscript = mysite:main"],
     "console_scripts": [
+        "texportfollowers = texportfollowers:main",
         "tunfollow = massunfollow:main",
         "tblock = block:main",
         "tpin = pin:main",

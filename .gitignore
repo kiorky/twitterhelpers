@@ -1,4 +1,5 @@
 *.csv
+followers.html
 cache*dbm*
 config*.yml
 src/*.egg-info/
