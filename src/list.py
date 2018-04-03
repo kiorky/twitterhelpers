@@ -30,7 +30,7 @@ def cliparse(argv=None):
 
 
 def is_ham(item, cfg):
-    if item['screen_name'].lower() in cfg.get('ham', []):
+    if item['screen_name'].lower() in [a.lower() for a in cfg.get('ham', [])]:
         return True
     return False
 
@@ -47,9 +47,10 @@ def spammers(l, cfg):
         '|(Come in!)'
         '|(I want you...)'
         '|(How do you like me?)'
+        '|(fitness lover)'
         '|(model / fitness)'
         '|(my private videos)'
-        '|(model.*actress.*https?://t\.co)'
+        '|(.*actress.*https?://t\.co)'
         '|((lofavorite|ver|unicorn|beauty|model| fan|fitness|travel|traveler).?'  # noqa
         ' (waiting you at|check this|click at|waiting you at|come on|come to me|check out|go to) https?://)'  # noqa
         '|(you want me)'
@@ -86,10 +87,15 @@ def main():
     wrapper = common.Wrapper.load(pargs.config)
     accounts = wrapper.accounts.values()
     usersd = []
+    following = {}
     if not pargs.no_followers:
         for i in accounts:
+            for i, user in six.iteritems(wrapper.get_following(i)):
+                following[user.id] = user
+        for i in accounts:
             for user in wrapper.get_followers(i):
-                append_ret(usersd, user)
+                if user.id not in following:
+                    append_ret(usersd, user)
     blocked = {}
     if not pargs.no_notifs:
         for i in accounts:
@@ -98,7 +104,6 @@ def main():
                 append_ret(usersd, u)
             for u in wrapper.get_blocks(i):
                 blocked[u.id] = u
-    import pdb;pdb.set_trace()  ## Breakpoint ##
     for cat, l in spammers(usersd, wrapper.config):
         for i in l:
             if i['id'] in blocked:
