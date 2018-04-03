@@ -7,6 +7,7 @@ from __future__ import print_function
 import lxml
 import lxml.etree
 import lxml.html
+from collections import OrderedDict
 import yaml
 import logging
 import requests
@@ -166,7 +167,8 @@ class Wrapper(object):
                     print('Reauth WAT: {0}'.format(account))
                 return twids, usersids
         return self.cache.get_or_create(
-            cacheapikey('get_notifs{0}'.format(1), account), _do)
+            cacheapikey('get_notifs{0}'.format(1), account), _do,
+            expiration_time=60*0)
 
     def get_tweets_updates(self, account, pages=3):
         '''
@@ -204,12 +206,12 @@ class Wrapper(object):
         return self.cache.get_or_create(
             'get_tbyid{0}'.format(tid), lambda: api.get_status(id=tid))
 
-    def get_timeline(self, uid, api=None, page=0):
+    def get_timeline(self, uid, api=None, page=0, k=''):
         _log.info('get timeline {0} {1}'.format(uid, page))
         if api is None:
             api = self.api
         return self.cache.get_or_create(
-            'get_eeeetimelinebyid{0}{1}'.format(uid, page),
+            'get_eeeetimelinebyid{0}{1}{2}'.format(uid, page, k),
             lambda: api.user_timeline(id=uid,
                                       count=99,
                                       page=page))
@@ -219,7 +221,8 @@ class Wrapper(object):
         if api is None:
             api = self.api
         return self.cache.get_or_create(
-            'get_ubyid{0}'.format(uid), lambda: api.get_user(id=uid))
+            'get_ubyid{0}'.format(uid), lambda: api.get_user(id=uid),
+            expiration_time=60*60*24*7)
 
     def get_rt_objs(self, account, tweet):
         tweet._api = account['api']
@@ -244,13 +247,29 @@ class Wrapper(object):
     def get_blocks(self, account):
         _log.info('get blocks {0}'.format(account))
         return self.cache.get_or_create(
-            cacheapikey('blocks', account),
+            cacheapikey('blocks69', account),
             lambda: consume(account['api'].blocks), expiration_time=60*30)
+
+    def get_following_ids(self, account, maxpage=10):
+        _log.info('get following ids 1{0}'.format(account))
+        return self.cache.get_or_create(
+            cacheapikey('get_followingids1{0}'.format(0), account),
+            lambda: consume_pages(account['api'].friends_ids, maxpage=maxpage),
+            expiration_time=60*30)
+
+    def get_following(self, account, maxpages=50):
+        _log.info('get following {0}'.format(account))
+        users = OrderedDict()
+        ids = self.get_following_ids(account)
+        for i in ids:
+            users[i] = self.get_user_by_id(i, api=account['api'])
+        return users
 
     def get_followers(self, account, maxpages=3):
         _log.info('get followers {0}'.format(account))
         return self.cache.get_or_create(
             cacheapikey('get_followers{0}'.format(maxpages), account),
+            lambda: consume_pages(account['api'].followers, maxpages=maxpages),
+            expiration_time=60*5)
 
-            lambda: consume_pages(account['api'].followers, maxpages=maxpages))
 # vim:set et sts=4 ts=4 tw=80:
