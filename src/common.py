@@ -265,7 +265,7 @@ class Wrapper(object):
     def get_following_ids(self, account, maxpage=10):
         _log.info('get following ids 1{0}'.format(account))
         return self.cache.get_or_create(
-            cacheapikey('get_followingids1{0}'.format(0), account),
+            cacheapikey('get_followingids12{0}'.format(0), account),
             lambda: consume_pages(account['api'].friends_ids, maxpage=maxpage),
             expiration_time=60*30)
 
