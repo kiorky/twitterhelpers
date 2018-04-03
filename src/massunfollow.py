@@ -19,11 +19,17 @@ uniquify = common.uniquify
 def cliparse(argv=None):
     if argv is None:
         argv = sys.argv[1:]
+    try:
+        sw = argv.pop(argv.index('--dry-run'))
+    except ValueError:
+        sw = None
     if not argv:
         argv.append('@'+J(C, 'unfollows.csv'))
+    if sw:
+        argv.append('--dry-run')
 
     def callback(parser, **kw):
-        parser.add_argument('--sync', default=True, action='store_false')
+        parser.add_argument('--dry-run', default=False, action='store_true')
         parser.add_argument('ids', nargs='+')
     return common.cliparse(
         argv=argv,
@@ -32,7 +38,7 @@ def cliparse(argv=None):
         description='to unfollow twitter ids')
 
 
-def do_unfollow(config, accounts, unfollows=None):
+def do_unfollow(config, accounts, unfollows=None, dry_run=False):
     if unfollows is None:
         unfollows = set()
     for i, data in six.iteritems(unfollows):
@@ -41,7 +47,10 @@ def do_unfollow(config, accounts, unfollows=None):
             print('{0}: unfollowing {1} {2} {3}'.format(
                 au, u.id, u.name, u.screen_name))
             try:
-                account['api'].destroy_friendship(u.id)
+                if not dry_run:
+                    account['api'].destroy_friendship(u.id)
+                else:
+                    print('- skipped')
             except (Exception,) as exc:
                 msg = '{0}'.format(exc)
                 if 'User not found' in msg:
@@ -65,17 +74,16 @@ def main():
     accounts = wrapper.accounts.values()
     followings = {}
     unfollows = {}
-    if pargs.sync:
-        for i in accounts:
-            for uid, user in six.iteritems(wrapper.get_following(i)):
-                f = followings.setdefault(uid, {})
-                f.setdefault('user', user)
-                fa = f.setdefault('accounts', {})
-                fa[i['user']] = i
+    for i in accounts:
+        for uid, user in six.iteritems(wrapper.get_following(i)):
+            f = followings.setdefault(uid, {})
+            f.setdefault('user', user)
+            fa = f.setdefault('accounts', {})
+            fa[i['user']] = i
     for i in idunfollow:
         if i in followings:
             unfollows[i] = followings[i]
-    do_unfollow(wrapper.config, accounts, unfollows)
+    do_unfollow(wrapper.config, accounts, unfollows, dry_run=pargs.dry_run)
 
 
 if __name__ == '__main__':

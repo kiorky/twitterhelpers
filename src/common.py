@@ -11,6 +11,7 @@ from collections import OrderedDict
 import yaml
 import logging
 import requests
+import re
 import argparse
 import os
 import sys
@@ -25,6 +26,17 @@ _cache = {
 }
 
 _log = logging.getLogger('twitterblock')
+
+
+def natural_sort(l):
+    def convert(text):
+        try:
+            a = int(text)
+        except ValueError:
+            a = text.lower()
+        return a
+    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    return sorted(l, key=alphanum_key)
 
 
 def cacheapikey(prefix, cfg):
