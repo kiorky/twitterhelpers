@@ -15,9 +15,3 @@ twitter api and a list of access to accounts to operate on.
       them via tblock
 
 to get ``wat`` config knob: open your browser and get ``auth_token`` from loggued in session
-
-
-
-    
-# Support development
-- [paypal](https://paypal.me/kiorky)
